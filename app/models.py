@@ -1,37 +1,29 @@
 from app import db
+from flask_login import UserMixin
 from datetime import datetime
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
-
-class Admin(db.Model):
-    __tablename__ = "admin"
-    id = db.Column(db.Integer, primary_key = True)
-    username = db.Column(db.String(255), nullable = False)
-    password = db.Column(db.String(255), nullable = False)
-
-    subjects_created = db.relationship('Subject', backref='admin', lazy=True)
-    chapters_created = db.relationship('Chapter', backref='admin', lazy=True)
-    quizzes_created = db.relationship('Quiz', backref='admin', lazy=True)
-    questions_created = db.relationship('Question', backref='admin', lazy=True)
-
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key = True)
     username = db.Column(db.String(255), unique = True, nullable = False)
-    password = db.Column(db.String(255), nullable = False)
-    full_name = db.Column(db.String(255), nullable = False)
+    password_hash = db.Column(db.String(255), nullable = False)
+    fullname = db.Column(db.String(255), nullable = False)
     qualification = db.Column(db.String(255))
     date_of_birth = db.Column(db.Date)
+    is_admin = db.Column(db.Boolean, default=False)
 
-    attempted_quizzes = db.relationship('Quiz', secondary = 'scores', backref = db.backref('users_attempted', lazy = 'dynamic'))
-    scores = db.relationship('Score', backref='user', lazy = True)
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Subject(db.Model):
     __tablename__ = 'subjects'
     id = db.Column(db.Integer, primary_key = True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable = True)
     name = db.Column(db.String(255), nullable = False)
     description = db.Column(db.Text)
 
@@ -40,7 +32,6 @@ class Subject(db.Model):
 class Chapter(db.Model):
     __tablename__ = 'chapters'
     id = db.Column(db.Integer, primary_key = True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable = False)
     name = db.Column(db.String(255), nullable = False)
     description = db.Column(db.String)
     subject_id = db.Column(db.Integer, db.ForeignKey('subjects.id'), nullable = False)
@@ -50,7 +41,6 @@ class Chapter(db.Model):
 class Quiz(db.Model):
     __tablename__ = 'quizzes'
     id = db.Column(db.Integer, primary_key = True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable = False)
     chapter_id = db.Column(db.Integer, db.ForeignKey('chapters.id'), nullable = False)
     date_of_quiz = db.Column(db.DateTime, nullable = False)
     time_duration = db.Column(db.Integer, nullable = False)
@@ -58,25 +48,18 @@ class Quiz(db.Model):
     created_at = db.Column(db.DateTime, default = datetime.utcnow)
 
     questions = db.relationship('Question', backref='quiz', lazy=True, cascade = 'all, delete-orphan')
-    scores = db.relationship('Score', backref='quiz', lazy=True, cascade='all, delete-orphan')
+    scores = db.relationship('Score', backref='quiz', lazy=True, cascade='all, delete-orphan', overlap="users_attempted")
 
 class Question(db.Model):
     __tablename__ = 'questions'
     id = db.Column(db.Integer, primary_key = True)
-    admin_id = db.Column(db.Integer, db.ForeignKey('admin.id'), nullable = False)
     quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable = False)
     question_statement = db.Column(db.Text, nullable = False)
+    option1 = db.Column(db.String(200), nullable = False)
+    option2 = db.Column(db.String(200), nullable = False)
+    option3 = db.Column(db.String(200), nullable = False)
+    option4 = db.Column(db.String(200), nullable = False)
     correct_option = db.Column(db.String, nullable = False)
-
-    options = db.relationship('Option', backref='question', lazy=True, cascade='all, delete-orphan')
-
-
-class Option(db.Model):
-    __tablename__ = 'options'
-    id = db.Column(db.Integer, primary_key = True)
-    question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable = False)
-    option_text = db.Column(db.String(255), nullable = False)
-    is_correct = db.Column(db.Boolean, default = False)
 
 class Score(db.Model):
     __tablename__ = 'scores'
