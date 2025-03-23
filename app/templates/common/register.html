@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_formhelpers.html" import render_field %}
+
+{% block title %}Register{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/register.css') }}">
+{% endblock %}
+
+{% block header %}
+<nav class="navbar navbar-expand-md navbar-dark fixed-top pb-2">
+    <div class="container-fluid">
+        <div class="d-flex gap-4 justify-content-center align-items-center ms-3 ">
+            <img class="logo my-1" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+        </div>
+        
+    </div>
+</nav>   
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="card mt-5 p-4 shadow">
+                    <h3 class="text-center mb-3">Register</h3>
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                
+                        {{ render_field(form.username) }}
+                        {{ render_field(form.password) }}
+                        {{ render_field(form.confirm_password) }}
+                        {{ render_field(form.fullname) }}
+                        {{ render_field(form.qualification) }}
+                        {{ render_field(form.date_of_birth) }}
+                    
+                        <div class="mb-3 d-grid">
+                            {{ form.submit(class="btn btn-primary w-100")}}
+                        </div>
+                    </form> 
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
