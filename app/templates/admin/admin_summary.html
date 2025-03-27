@@ -1,0 +1,170 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Summary{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='styles/charts.css')}}">
+{% endblock %}
+
+{% block links %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block header %}
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top">
+        <div class="container-fluid">
+            <div class="d-flex gap-4 justify-content-center align-items-center ms-3">
+                <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+                <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                    <div class="d-flex gap-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('manage_subjects')}}">Subjects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('manage_chapters' )}}">Chapters</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('manage_quizzes') }}">Quizzes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('manage_users')}}">Users</a>
+                        </li>
+                    </div>
+                </ul>
+                
+            </div>
+            <div class="d-flex gap-3 justify-content-evenly p-2 me-3">
+                <div class="buttons">
+                    <a class="button" href="{{ url_for('logout') }}">Logout<span class="button-border"></span></a>
+                </div>
+            </div>
+        </div>
+      </nav>
+
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="charts d-flex justify-content-around align-items-center gap-3">
+            <div class="card">
+                <h4 class="chart-title">Average Scores</h4>
+                <canvas id="averageScoresChart"></canvas>
+              </div>
+              <div class="card">
+                <h4 class="chart-title">Subject wise top scores</h4>
+                <canvas id="topScoresChart"></canvas>
+            </div>
+        </div>
+        <div class="charts d-flex justify-content-around align-items-center gap-3">
+            <div class="card">
+                <h4 class="chart-title">Completion Rates</h4>
+                <canvas id="completionRatesChart"></canvas>
+              </div>
+            <div class="card">
+                <h4 class="chart-title">Subject wise attempts</h4>
+                <canvas id="subjectAttemptsChart"></canvas>
+            </div>
+        </div>
+    </div>    
+
+    <script>
+        function getRandomColor() {
+            return `rgba(${Math.floor(Math.random() * 255)}, 
+                         ${Math.floor(Math.random() * 255)}, 
+                         ${Math.floor(Math.random() * 255)}, 0.6)`;
+        }
+    
+        // Define variables first
+        const quizNames = {{ quiz_names|tojson }};
+        const averageScores = {{ average_scores|tojson }};
+        const completionRates = {{ completion_rates|tojson }};
+        const subjectNames = {{ subject_names|tojson }};
+        const attemptsData = {{ attempts_data|tojson }};
+        const subjects = {{ subjects|tojson }};
+        const scores = {{ scores|tojson }};
+        const users = {{ users|tojson }};
+    
+        const backgroundColors = quizNames.map(() => getRandomColor());
+        const subjectColors = subjectNames.map(() => getRandomColor());
+        const scoreColors = subjects.map(() => getRandomColor());
+
+        const barChartColor = 'rgba(54, 162, 235, 0.6)'; 
+        const barChartBorderColor = 'rgba(54, 162, 235, 1)';
+    
+        // Chart 1: Average Scores
+        const ctx = document.getElementById('averageScoresChart');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: quizNames,
+                datasets: [{
+                    label: 'Average Score',
+                    data: averageScores,
+                    backgroundColor: barChartColor,
+                    borderWidth: 1
+                }]
+            },
+            options: { scales: { y: { beginAtZero: true } } }
+        });
+    
+        // Chart 2: Completion Rates
+        const ctx1 = document.getElementById('completionRatesChart');
+        new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: quizNames,
+                datasets: [{
+                    label: 'Completion Rate',
+                    data: completionRates,
+                    backgroundColor: backgroundColors,
+                    hoverOffset: 4
+                }]
+            }
+        });
+    
+        // Chart 3: Subject-wise Attempts
+        const ctx2 = document.getElementById('subjectAttemptsChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'pie',
+            data: {
+                labels: subjectNames,
+                datasets: [{
+                    label: 'Total Attempts',
+                    data: attemptsData,
+                    backgroundColor: subjectColors,
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true }
+        });
+    
+        // Chart 4: Top Scores
+        const ctx3 = document.getElementById('topScoresChart').getContext('2d');
+        new Chart(ctx3, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: 'Top Score',
+                    data: scores,
+                    backgroundColor: barChartColor,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `User: ${users[tooltipItem.dataIndex]}, Score: ${scores[tooltipItem.dataIndex]}`;
+                            }
+                        }
+                    }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    </script>
+    
+{% endblock %}
