@@ -23,7 +23,14 @@ def create_app():
     db.init_app(app)
 
     from app import models
-    from app.models import User
+    from app.models.models import User
+    from app.controllers.authentication_routes import authentication_bp
+    from app.controllers.admin_routes import admin_bp
+    from app.controllers.user_routes import user_bp
+
+    app.register_blueprint(authentication_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(user_bp)
 
     with app.app_context():
         if not os.path.exists("project.db"):
