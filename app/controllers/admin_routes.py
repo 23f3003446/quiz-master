@@ -27,10 +27,10 @@ def subjects():
     form = SubjectForm()
     edit_forms = {subject.id : SubjectForm(obj=subject) for subject in subjects}
 
-    search_query = request.args.get('subject_name','')
+    search_query = request.args.get('subject_name','').strip()
 
     if search_query:
-        subjects = Subject.query.filter(Subject.name.ilike(f'%{search_query}')).all()
+        subjects = Subject.query.filter(Subject.name.ilike(f'%{search_query}%')).all()
 
     if form.validate_on_submit():
         subject = Subject(name = form.name.data,
