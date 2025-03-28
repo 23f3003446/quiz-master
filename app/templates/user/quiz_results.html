@@ -1,0 +1,84 @@
+{% extends "user/user_dashboard.html" %}
+
+{% block title %}Quiz Results{% endblock %}
+
+{% block header %}
+<nav class="navbar navbar-expand-md navbar-dark fixed-top ">
+    <div class="container-fluid">
+        <div class="d-flex gap-4 justify-content-center align-items-center ms-3">
+            <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <div class="d-flex gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('user.user_dashboard') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.user_quizzes') }}">Quizzes</a>
+                    </li>
+                </div>
+            </ul>
+        </div>
+        <div class="d-flex gap-3 justify-content-evenly p-2 me-3">
+            <div class="buttons">
+                <a class="button" href="{{ url_for('auth.logout') }}">Logout<span class="button-border"></span></a>
+            </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between m-5">
+        <h5 class="text"><strong>Quiz: </strong> {{quiz.id }} - {{ quiz.name }}</h5>
+        <h5 class="text"><strong>Your Score:</strong> {{ score }}/{{ quiz.questions|length }}</h5>
+
+        <h5 class="text"><strong>Time stamp of attempt:</strong> {{ attempt.attempt_time_local.strftime('%Y-%m-%d %I:%M %p')  }}</h5>
+    </div>
+
+    <div>
+        <div class="container-fluid">
+            <div class="card m-2 p-4">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Question</th>
+                            <th class="text-center">Option 1</th>
+                            <th class="text-center">Option 2</th>
+                            <th class="text-center">Option 3</th>
+                            <th class="text-center">Option 4</th>
+                            <th class="text-center">Your Answer</th>
+                            <th class="text-center">Correct Answer</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for result in results %}
+
+                        <tr>
+                            <td>{{ result.question }}</td>
+                            <td class="text-center">{{ result.option1 }}</td>
+                            <td class="text-center">{{ result.option2 }}</td>
+                            <td class="text-center">{{ result.option3 }}</td>
+                            <td class="text-center">{{ result.option4 }}</td>
+                            <td class="text-center">{{ result.user_answer }}</td>
+                            <td class="text-center">{{ result.correct_answer }}</td>
+                            <td class="text-center">
+                                {% if result.is_correct %}
+                                    <span style="color: green;">✔ Correct</span>
+                                {% elif result.user_answer == "Not Answered" %}
+                                    <span style="color: orange;">⚠ Not Answered</span>
+                                {% else %}
+                                    <span style="color: red;">✘ Incorrect</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

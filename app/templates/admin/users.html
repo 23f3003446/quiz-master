@@ -1,4 +1,7 @@
-{% extends "admin_dashboard.html" %}
+{% extends "admin/admin_dashboard.html" %}
+
+{% block title %}Users{% endblock %}
+
 {% block header %}
     <nav class="navbar navbar-expand-md navbar-dark fixed-top">
         <div class="container-fluid">
@@ -7,16 +10,16 @@
                 <ul class="navbar-nav me-auto mb-2 mb-md-0">
                     <div class="d-flex gap-2">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('manage_subjects')}}">Subjects</a>
+                            <a class="nav-link" href="{{ url_for('admin.subjects')}}">Subjects</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('manage_chapters' )}}">Chapters</a>
+                            <a class="nav-link" href="{{ url_for('admin.chapters' )}}">Chapters</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('manage_quizzes') }}">Quizzes</a>
+                            <a class="nav-link" href="{{ url_for('admin.quizzes') }}">Quizzes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('admin_summary')}}">Summary</a>
+                            <a class="nav-link" href="{{ url_for('admin.admin_summary')}}">Summary</a>
                         </li>
                     </div>
                 </ul>
@@ -24,7 +27,7 @@
             </div>
             <div class="d-flex gap-3 justify-content-evenly p-2 me-3">
                 <div class="buttons">
-                    <a class="button" href="{{ url_for('logout') }}">Logout<span class="button-border"></span></a>
+                    <a class="button" href="{{ url_for('auth.logout') }}">Logout<span class="button-border"></span></a>
                 </div>
             </div>
             
@@ -43,7 +46,7 @@
                         <input type="text" class="form-control" name="user_name" placeholder="Search User" value="{{ search_query }}">
                     </span>
                     <button class="btn btn-primary btn-md px-2" type="submit" name="search">Find</button>   
-                    <a href="{{ url_for('manage_users') }}"><button type="button" class="btn btn-secondary">Clear</button></a>
+                    <a href="{{ url_for('admin.users') }}"><button type="button" class="btn btn-secondary">Clear</button></a>
                 </div>
             </form>
 
@@ -62,7 +65,7 @@
                     {% for user in users %}
                     {% if user.username != "admin@quizmaster.com" %}
                         <tr>
-                            <td>{{ user.id }}</td>
+                            <td>{{ "%05d"|format(user.id) }}</td>
                             <td>{{ user.username }}</td>
                             <td>{{ user.fullname }}</td>
                             <td>{{ user.qualification }}</td>
@@ -91,7 +94,7 @@
                 <div class="modal-body">
                     <div class="">
                         <p>Name: {{ user_stats[user.id].name }}</p>
-                        <p>Quizzes Attempted: {{ user_stats[user.id].quizzes_attempted }} / {{ total_quizzes}}</p>
+                        <p>Quizzes Attempted: {{ user_stats[user.id].attempted_quizzes }} / {{ total_quizzes}}</p>
                         <p>Average Score: {{ user_stats[user.id].avg_score }}</p>
                         <p>Best Score: {{ user_stats[user.id].best_score }}</p>
                         <p>Lowest Score: 

@@ -1,0 +1,122 @@
+{% extends "user/user_dashboard.html" %}
+
+{% block title %}Quizzes{% endblock %}
+
+{% block header %}
+<nav class="navbar navbar-expand-md navbar-dark fixed-top ">
+    <div class="container-fluid">
+        <div class="d-flex gap-4 justify-content-center align-items-center ms-3">
+            <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <div class="d-flex gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('user.user_dashboard') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.user_summary') }}">Performance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.leaderboard') }}">Leaderboard</a>
+                    </li>
+                    
+                </div>
+            </ul>
+        </div>
+        <div class="d-flex gap-3 justify-content-evenly p-2 me-3">
+            <div class="buttons">
+                <a class="button" href="{{ url_for('auth.logout') }}">Logout<span class="button-border"></span></a>
+            </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="d-flex justify-content-between">
+        <form method="POST" class="mt-3 mb-2 px-5">
+            <label for="subject_id" class="text">Filter by Subject:</label>
+            <select id="subject_id" name="subject_id">
+                <option value="">--Select--</option>
+                {% for subject in subjects %}
+                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                {% endfor %}
+            </select>
+    
+            <label for="chapter_id"class="text">Filter by Chapter:</label>
+            <select id="chapter_id" name="chapter_id">
+                <option value="">--Select--</option>
+                {% for chapter in chapters %}
+                    <option value="{{ chapter.id }}" data-subject-id="{{ chapter.subject_id }}">{{ chapter.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-dark btn-sm ms-3" type="submit">Apply Filters</button>
+        </form>
+    </div>
+
+    <div class="container-fluid">
+        <div class="card m-4 p-4">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Date of Quiz</th>
+                        <th>Time Duration</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                        <th>Results</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quiz in quizzes %}
+                    <tr>
+                        <td>{{ quiz.name }}</td>
+                        <td>{{ quiz.date_of_quiz.strftime("%Y-%m-%d") }}</td>
+                        <td>{{ quiz.time_duration // 60 }} Minutes</td>
+                        <td>
+                            {% if quiz.id in attempted_quiz_ids %}
+                            <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Attempted</span>
+                            {% else %}
+                            <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Not Attempted</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if quiz.id not in attempted_quiz_ids %}
+                                <a href="{{ url_for('user.attempt_quiz', quiz_id=quiz.id)}}">
+                                    <button class="btn btn-sm">Attempt</button>
+                                </a>
+                            {% else %}
+                                <button class="btn btn-sm" disabled>Attempted</button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if quiz.id in attempted_quiz_ids %}
+                                <a href="{{ url_for('user.quiz_results', quiz_id=quiz.id) }}">
+                                    <button class="btn btn-info btn-sm">View Results</button>
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('subject_id').addEventListener('change', function() {
+        let subjectId = this.value;
+        let chapters = document.querySelectorAll('#chapter_id option');
+
+        chapters.forEach(option => {
+            if (option.dataset.subjectId == subjectId || option.value == "") {
+                option.style.display = "block";
+            } else {
+                option.style.display = "none";
+            }
+        });
+    });
+</script>
+{% endblock %}

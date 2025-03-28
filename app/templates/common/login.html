@@ -1,10 +1,10 @@
-{% extends "base.html" %}
-{% from "_formhelpers.html" import render_field %}
+{% extends "common/base.html" %}
+{% from "common/_formhelpers.html" import render_field %}
 
 {% block title %}Login{% endblock %}
 
 {% block styles %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/common/login.css') }}">
 {% endblock %}
 
 {% block header %}
@@ -13,12 +13,6 @@
     <div class="container-fluid">
         <div class="d-flex gap-4 justify-content-center align-items-center ms-3 ">
             <img class="logo my-1" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
-        </div>
-        <div class="d-flex gap-3 justify-content-evenly p-2 me-3 d-none">
-            <div class="buttons d-flex justify-content-center gap-4">
-                <a class="button" href="{{ url_for('login') }}">Login<span class="button-border"></span></a>
-                <a class="button" href="{{ url_for('register') }}">Register<span class="button-border"></span></a>
-            </div>
         </div>
     </div>
 </nav>
@@ -44,7 +38,7 @@
             </form>
     
             <p class="text-center mt-2">
-                Don't have an account? <a href="{{ url_for('register') }}">Create one!</a>
+                Don't have an account? <a href="{{ url_for('auth.register') }}">Create one!</a>
             </p>
         </div>
     </div>

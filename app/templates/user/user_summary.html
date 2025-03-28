@@ -1,0 +1,161 @@
+{% extends "user/user_dashboard.html" %}
+
+{% block title %}Summary{% endblock %}
+
+{% block links %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/user/user_summary.css')}}">
+{% endblock %}
+
+{% block header %}
+<nav class="navbar navbar-expand-md navbar-dark fixed-top ">
+    <div class="container-fluid">
+        <div class="d-flex gap-4 justify-content-center align-items-center ms-3">
+            <img class="logo" src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <div class="d-flex gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="{{ url_for('user.user_dashboard') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.leaderboard') }}">Leaderboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user.user_quizzes') }}">Quizzes</a>
+                    </li>
+                </div>
+            </ul>
+        </div>
+        <div class="d-flex gap-3 justify-content-evenly p-2 me-3">
+            <div class="buttons">
+                <a class="button" href="{{ url_for('auth.logout') }}">Logout<span class="button-border"></span></a>
+            </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+{% endblock %}
+
+{% block content %}
+
+    <div class="mt-2 row g-4">
+        <div class="d-flex justify-content-center gap-3">
+            <div class="user-card col-12 col-md-6 col-lg-4">
+                <div class="card h-100 text-center shadow">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3 mb-1 mt-2">
+                        Best Score = {{ best_score }}
+                    </div>
+                </div>
+            </div>
+    
+    
+            <div class="user-card col-12 col-md-6 col-lg-4">
+                <div class="card h-100 text-center shadow">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3 mb-1 mt-2">
+                        Lowest Score = {{ lowest_score}}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3">
+            <div class="user-card col-12 col-md-6 col-lg-4">
+                <div class="card h-100 text-center shadow">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3 mb-1 mt-2">
+                        Average Score = {{ avg_score }}
+                    </div>
+                </div>
+            </div>
+    
+            <div class="user-card col-12 col-md-6 col-lg-4">
+                <div class="card h-100 text-center shadow">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3 mb-1 mt-2">
+                        Total Questions Answered = {{ total_questions_answered }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="charts d-flex justify-content-around align-items-center gap-3">
+            <div class="card">
+                <h4 class="chart-title">Subject wise attempts</h4>
+                <canvas id="subjectAttemptsChart"></canvas>
+              </div>
+              <div class="card">
+                <h4 class="chart-title">Average Score</h4>
+                <canvas id="avgScoreChart"></canvas>
+            </div>
+        </div>
+    </div>
+        
+    <script>
+        function getRandomColor() {
+            return `rgba(${Math.floor(Math.random() * 255)}, 
+                         ${Math.floor(Math.random() * 255)}, 
+                         ${Math.floor(Math.random() * 255)}, 0.6)`;
+        }
+
+        const subjectNames = {{ subjects|tojson }};
+        const attemptCounts = {{ attempts|tojson }};
+        const avgScores = {{ avg_scores|tojson }};
+    
+        const backgroundColors = subjectNames.map(() => getRandomColor());
+
+        console.log("Subjects:", subjectNames);
+        console.log("Attempts:", attemptCounts);
+        console.log("Average Scores:", avgScores);
+    
+        const ctx1 = document.getElementById('subjectAttemptsChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'pie',
+            data: {
+                labels: subjectNames,
+                datasets: [{
+                    label: 'Total Attempts',
+                    data: attemptCounts,
+                    backgroundColor: backgroundColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return `Subject: ${subjectNames[tooltipItem.dataIndex]}, Attempts: ${attemptCounts[tooltipItem.dataIndex]}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    
+        const ctx2 = document.getElementById('avgScoreChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: subjectNames,
+                datasets: [{
+                    label: 'Average Score',
+                    data: avgScores,
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+    
+{% endblock %}

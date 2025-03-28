@@ -1,0 +1,106 @@
+{% extends "user/user_dashboard.html" %}
+
+{% block title %}Attempt Quiz: {{quiz.name}}{% endblock %}
+
+{% block content %}
+<h3 class="text page-title my-3">{{ quiz.id }} - {{quiz.name}}</h3>
+
+{% if quiz.time_duration > 0 %}
+<div class="d-flex mb-3">
+    <div class="timer-container text-center">
+        <h4 class="text text-danger"><strong>Time Left</strong></h4>
+        <div class="timer bg-success-subtle text-white rounded p-3">
+            <span id="timer" class="quiz-timer">00:00</span>
+        </div>
+    </div>
+
+</div>
+{% endif %}
+
+<div class="card p-2 position-absolute text-center" style="top: 180px; right: 80px; z-index: 1050;">
+    <span>
+        <p><strong>Total Questions: {{ ques }}</strong></p>
+    </span>
+</div>
+
+<div class="card">
+    <form id="quizForm" class="quiz-form" method="POST">
+        {% for question in questions %}
+        <div class="quiz-question" id="question_{{ loop.index0 }}" {% if loop.index0 != 0 %} style="display: none;" {% endif %}>
+            
+            <div class="d-flex flex-column gap-4">
+                <div class="d-flex gap-3 px-4 mt-4">
+                    <div class="question-number mb-3">Q {{ loop.index }}</div>
+                    <div class="question-statement">{{ question.question_statement }}</div>
+                </div>
+                <div class="quiz-options d-flex flex-column gap-3 px-4 mb-4">
+                    {% for option in [question.option1, question.option2, question.option3, question.option4] %}
+                    <label class="radio-option">
+                        <input type="radio" name="question_{{ question.id }}" value="{{ loop.index }}">
+                        {{ option }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+        </div>
+        {% endfor %}
+        
+        
+        <div class="quiz-navigation position-absolute bottom-3 start-0 p-3">
+            <button type="button" id="prevBtn" class="btn btn-secondary" onclick="changeQuestion(-1)" disabled>Previous</button>
+            <button type="button" id="nextBtn" class="btn btn-primary" onclick="changeQuestion(1)">Next</button>
+        </div>
+        <div class="position-absolute bottom-3 end-0 p-3">
+            <button type="submit" id="submitBtn" class="btn btn-success">Submit Quiz</button>
+        </div>
+
+    </form>
+</div>
+
+
+<script>
+    const quizDuration = {{ quiz.time_duration }};
+    if (quizDuration > 0) {
+        let timeLeft = quizDuration;
+
+        function updateTimer() {
+            let minutes = Math.floor(timeLeft / 60)
+            let seconds = timeLeft % 60
+            document.getElementById("timer").textContent = `
+    ${minutes.toString().padStart(2, '0')}:
+    ${seconds.toString().padStart(2, '0')}
+    `
+            if (timeLeft <= 0) {
+                clearInterval(timeInterval);
+                alert("Time's up! Your quiz will be submitted automatically.");
+                document.getElementById("quizForm").submit()
+            } else {
+                timeLeft--;
+            }
+        }
+
+        const timeInterval = setInterval(updateTimer, 1000)
+    }
+
+
+    let currentQuestion = 0;
+    const totalQuestions = {{ questions|length }};
+    
+    function changeQuestion(step) {
+        // Hide current question
+        document.getElementById(`question_${currentQuestion}`).style.display = "none";
+        
+        // Move to next or previous question
+        currentQuestion += step;
+        
+        // Show new question
+        document.getElementById(`question_${currentQuestion}`).style.display = "block";
+        
+        // Handle button visibility
+        document.getElementById("prevBtn").disabled = (currentQuestion === 0);
+        document.getElementById("nextBtn").disabled = (currentQuestion === totalQuestions - 1);
+    }
+
+</script>
+{% endblock %}
