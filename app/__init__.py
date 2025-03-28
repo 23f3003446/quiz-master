@@ -21,6 +21,7 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     db.init_app(app)
+    login_manager.init_app(app)
 
     from app import models
     from app.models.models import User
@@ -39,6 +40,7 @@ def create_app():
             admin = User.query.filter_by(username="admin@quizmaster.com").first()
             if not admin:
                 admin = User(
+                    id = 00,
                     username = "admin@quizmaster.com",
                     fullname = "Quiz Master Admin",
                     is_admin = True

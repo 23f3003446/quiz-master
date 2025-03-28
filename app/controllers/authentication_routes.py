@@ -8,8 +8,8 @@ import random
 
 authentication_bp = Blueprint('auth', __name__)
 
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-PROFILE_IMAGES_FOLDER = os.path.join(os.path.join(BASE_DIR, 'static', 'images', 'profiles'))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+PROFILE_IMAGES_FOLDER = os.path.join(BASE_DIR, 'static', 'images', 'profiles')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -27,12 +27,12 @@ def register():
         existing_user = User.query.filter_by(username = form.username.data).first()
 
         if existing_user:
-            flash("Username taken! Please enter a different username!")
-            return redirect(url_for('register'))
+            flash("Username taken! Please enter a different username!", "danger")
+            return redirect(url_for('auth.register'))
         
         if form.username.data.lower() == "admin@quizmaster.com":
             flash("Username not allowed!", "danger")
-            return redirect(url_for('register'))
+            return redirect(url_for('auth.register'))
         
         profile_images = [file for file in os.listdir(PROFILE_IMAGES_FOLDER) if file.endswith('.png')]
         profile_image = random.choice(profile_images)
@@ -49,7 +49,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash("Account Registered Successfully!", "success")
-        return redirect(url_for('login'))
+        return redirect(url_for('auth.login'))
     return render_template('common/register.html', form=form)
 
 @authentication_bp.route('/login', methods=['GET','POST'])
@@ -63,9 +63,9 @@ def login():
             flash("Login Successfully!", "success")
 
             if user.is_admin:
-                return redirect(url_for('admin/admin_dashboard'))
+                return redirect(url_for('admin.admin_dashboard'))
             else:
-                return redirect(url_for('user/user_dashboard'))
+                return redirect(url_for('user.user_dashboard'))
             
         else:
             flash("Authentication Failed! Please check your credentials.", "danger")
@@ -76,7 +76,7 @@ def login():
 def logout():
     logout_user()
     session.clear()
-    flash("Logged Out Successfully!")
-    return redirect(url_for('home'))
+    flash("Logged Out Successfully!", "success")
+    return redirect(url_for('auth.home'))
 
 

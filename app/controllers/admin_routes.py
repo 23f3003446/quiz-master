@@ -13,7 +13,7 @@ admin_bp = Blueprint('admin', __name__)
 def admin_dashboard():
     if not current_user.is_admin:
         flash("You don't have access to this page!", "danger")
-        return redirect(url_for('user_dashboard'))
+        return redirect(url_for('user.user_dashboard'))
     return render_template('admin/admin_dashboard.html')
 
 @admin_bp.route('/admin/subjects', methods=['GET', 'POST'])
@@ -21,7 +21,7 @@ def admin_dashboard():
 def subjects():
     if not current_user.is_admin:
         flash("You don't have access to this page!", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
     subjects = Subject.query.all()
     form = SubjectForm()
@@ -38,7 +38,7 @@ def subjects():
         db.session.add(subject)
         db.session.commit()
         flash("Subject Added Successfully!", "success")
-        return redirect(url_for('subjects'))
+        return redirect(url_for('admin.subjects'))
     return render_template('admin/subjects.html',
                            subjects=subjects,
                            form=form,
@@ -47,20 +47,19 @@ def subjects():
 
 @admin_bp.route('/admin/edit_subject/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_subject():
+def edit_subject(id):
     if not current_user.is_admin:
         flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
-    subjects = Subject.query.all()
+    subject = Subject.query.get_or_404(id)
     form=SubjectForm(obj=subject)
     if form.validate_on_submit():
-        for subject in subjects:
-            subject.name = form.name.data
-            subject.description = form.description.data
-            db.session.commit()
+        subject.name = form.name.data
+        subject.description = form.description.data
+        db.session.commit()
         flash("Subject details succesfully updated!")
-        return redirect(url_for('manage_subjects'))
+        return redirect(url_for('admin.subjects'))
     return render_template('admin/subjects.html', form=form, subjects=subjects)
 
 @admin_bp.route('/admin/delete_subject/<int:id>', methods=['POST'])
@@ -68,7 +67,7 @@ def edit_subject():
 def delete_subject(id):
     if not current_user.is_admin:
         flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     subject = Subject.query.get_or_404(id)
 
     chapters = Chapter.query.filter_by(subject_id=id).all()
@@ -81,7 +80,7 @@ def delete_subject(id):
                 QuestionAttempt.question_id.in_(
                     [question.id for question in quiz.questions]
                 )
-            ).delete(synchronise_session=False)
+            ).delete(synchronize_session=False)
 
             Score.query.filter_by(quiz_id=quiz.id).delete()
             QuizAttempt.query.filter_by(quiz_id=quiz.id).delete()
@@ -92,14 +91,14 @@ def delete_subject(id):
     db.session.delete(subject)
 
     db.session.commit()
-    return redirect(url_for('subjects'))
+    return redirect(url_for('admin.subjects'))
 
 @admin_bp.route('/admin/chapters', methods=['GET', 'POST'])
 @login_required
 def chapters():
     if not current_user.is_admin:
         flash("You don't have access to this page!", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
     chapters = Chapter.query.all()
     
@@ -120,7 +119,7 @@ def chapters():
         db.session.add(chapter)
         db.session.commit()
         flash("Chapter Successfully Added", "success")
-        return redirect(url_for('chapters'))
+        return redirect(url_for('admin.chapters'))
     return render_template('admin/chapters.html',
                            chapters=chapters,
                            form=form,
@@ -131,8 +130,8 @@ def chapters():
 @login_required
 def edit_chapter(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        flash("You don't have access to this page!", "danger")
+        return redirect(url_for('auth.home'))
     chapter = Chapter.query.get_or_404(id)
     form=ChapterForm(obj=chapter)
     form.subject_id.choices = [(s.id, s.name) for s in Subject.query.all()]
@@ -142,16 +141,16 @@ def edit_chapter(id):
         chapter.description = form.description.data
         chapter.subject_id = form.subject_id.data
         db.session.commit()
-        flash("Chapter details updated successfulyy!")
-        return redirect(url_for('chapters'))
+        flash("Chapter details updated successfulyy!", "success")
+        return redirect(url_for('admin.chapters'))
     return render_template('admin/chapters.html', form=form)
 
 @admin_bp.route('/admin/delete_chapter/<int:id>', methods=['POST'])
 @login_required
 def delete_chapter(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        flash("You don't have access to this page!", "danger")
+        return redirect(url_for('auth.home'))
     chapter = Chapter.query.get_or_404(id)
 
     quizzes = Quiz.query.filter_by(chapter_id=chapter.id).all()
@@ -164,21 +163,23 @@ def delete_chapter(id):
         ).delete(synchronize_session=False)
 
         Score.query.filter_by(quiz_id=quiz.id).delete()
+
         QuizAttempt.query.filter_by(quiz_id=quiz.id).delete()
+
         Question.query.filter_by(quiz_id=quiz.id).delete()
 
         db.session.delete(quiz)
 
     db.session.delete(chapter)
     db.session.commit()
-    return redirect(url_for('chapters'))
+    return redirect(url_for('admin.chapters'))
 
 @admin_bp.route('/admin/quizzes', methods=['GET', 'POST'])
 @login_required
 def quizzes():
     if not current_user.is_admin:
         flash("You don't have access to this page!", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
     quizzes = Quiz.query.all()
     edit_forms = {quiz.id : QuizForm(obj=quiz) for quiz in quizzes}
@@ -201,7 +202,7 @@ def quizzes():
         db.session.add(quiz)
         db.session.commit()
         flash("Quiz Added Successfully!", "success")
-        return redirect(url_for('quizzes'))
+        return redirect(url_for('admin.quizzes'))
     return render_template('admin/quizzes.html',
                            quizzes=quizzes,
                            form=form,
@@ -213,7 +214,7 @@ def quizzes():
 def edit_quiz(id):
     if not current_user.is_admin:
         flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     quiz = Quiz.query.get_or_404(id)
     form=QuizForm(obj=quiz)
     form.chapter_id.choices = [(c.id, c.name) for c in Chapter.query.all()]
@@ -224,7 +225,7 @@ def edit_quiz(id):
         quiz.chapter_id = form.chapter_id.data
         db.session.commit()
         flash("Quiz details updated successfulyy!")
-        return redirect(url_for('quizzes'))
+        return redirect(url_for('admin.quizzes'))
     return render_template('admin/quizzes.html', form=form)
 
 @admin_bp.route('/admin/delete_quiz/<int:id>', methods=['POST'])
@@ -232,7 +233,7 @@ def edit_quiz(id):
 def delete_quiz(id):
     if not current_user.is_admin:
         flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     quiz = Quiz.query.get_or_404(id)
 
     QuestionAttempt.query.filter(
@@ -242,19 +243,21 @@ def delete_quiz(id):
     ).delete(synchronize_session=False)
 
     Score.query.filter_by(quiz_id=id).delete()
+
     QuizAttempt.query.filter_by(quiz_id=id).delete()
+
     Question.query.filter_by(quiz_id=id).delete()
-    
+
     db.session.delete(quiz)
     db.session.commit()
-    return redirect(url_for('quizzes'))
+    return redirect(url_for('admin.quizzes'))
 
-@admin_bp.route('/admin/questions<int:quiz_id>', methods=['GET', 'POST'])
+@admin_bp.route('/admin/questions/<int:quiz_id>', methods=['GET', 'POST'])
 @login_required
 def questions(quiz_id):
     if not current_user.is_admin:
         flash("You don't have access to this page!", "danger")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
     quiz = Quiz.query.get_or_404(quiz_id)
     questions = quiz.questions
@@ -274,24 +277,23 @@ def questions(quiz_id):
         )
         db.session.add(question)
         db.session.commit()
-        flash('Question added.')
-        return redirect(url_for('questions', quiz_id=quiz_id))
+        flash("Question Added Successfully!", "success")
+        return redirect(url_for('admin.questions', quiz_id=quiz_id))
     return render_template('admin/questions.html', 
                            quiz=quiz, 
                            questions=questions, 
                            form=form, 
                            edit_forms=edit_forms)
 
-@admin_bp.route('/admin/edit_question/<int:quiz_id>', methods=['GET', 'POST'])
+@admin_bp.route('/admin/edit_question/<int:question_id>', methods=['GET', 'POST'])
 @login_required
-def edit_question(quiz_id):     
+def edit_question(question_id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!", "danger")
+        flash("You don't have access to this page!", "success")
         return redirect(url_for('home'))
-    
-    question = Question.query.get_or_404(quiz_id)
+    question = Question.query.get_or_404(question_id)
     form = QuestionForm(obj=question)
-
+    
     if form.validate_on_submit():
         question.question_statement = form.question_statement.data
         question.option1 = form.option1.data
@@ -301,27 +303,31 @@ def edit_question(quiz_id):
         question.correct_option = form.correct_option.data
         db.session.commit()
         flash("Question edited.")
-        return redirect(url_for('questions', quiz_id=question.quiz_id))
-    return render_template('admin/questions.html', form=form)
+        return redirect(url_for('admin.questions', quiz_id=question.quiz_id))
+    return render_template('admin/edit_question.html', form=form)
 
-@admin_bp.route('/admin/delete_question/<int:question_id>', methods=['POST'])
+@admin_bp.route('/admin/delete_question/<int:id>', methods=['POST'])
 @login_required
-def delete_question(question_id):
+def delete_question(id):
     if not current_user.is_admin:
         flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
-    question = Question.query.get_or_404(question_id)
+    question = Question.query.get_or_404(id)
+    if not question:
+        flash("Question not found!")
+        return redirect(url_for('auth.home'))
+
     db.session.delete(question)
     db.session.commit()
-    return redirect(url_for('admin/questions', quiz_id=question.quiz_id))
+    return redirect(url_for('admin.questions', quiz_id=question.quiz_id))
 
 @admin_bp.route('/admin/users')
 @login_required
 def users():
     if not current_user.is_admin:
         flash("You don't have access to this page!")
-        return redirect(url_for('home'))
+        return redirect(url_for('auth.home'))
     
     users = User.query.all()
     total_quizzes = Quiz.query.count()
@@ -342,7 +348,7 @@ def users():
         user_stats[user.id] = {
             "name": user.fullname,
             "email": user.username,
-            "attemmpted_quizzes": attempted_quizzes,
+            "attempted_quizzes": attempted_quizzes,
             "avg_score": round(avg_score, 2) if avg_score else 0,
             "best_score": best_score,
             "lowest_score": lowest_score
@@ -360,7 +366,7 @@ def users():
                            search_query=search_query)
 
 @admin_bp.route('/admin/summary')
-@login_required()
+@login_required
 def admin_summary():
     quizzes = Quiz.query.all()
     quiz_names = [quiz.name for quiz in quizzes]
