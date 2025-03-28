@@ -199,7 +199,7 @@ def attempt_quiz(quiz_id):
     shuffle(questions)
 
     if QuizAttempt.query.filter_by(user_id=current_user.id, quiz_id=quiz_id).first():
-        flash("Already attempted")
+        flash("Already attempted", "warning")
         return redirect(url_for('user.user_quizzes'))
     
     if request.method == 'POST':
@@ -247,7 +247,7 @@ def attempt_quiz(quiz_id):
         
         db.session.commit()
 
-        flash(f'Quiz Completed! Your score: {score}/{len(questions)}')
+        flash(f'Quiz Completed! Your score: {score}/{len(questions)}', "success")
         return redirect(url_for('user.quiz_results', quiz_id=quiz_id))
     
     return render_template('user/attempt_quiz.html', 
