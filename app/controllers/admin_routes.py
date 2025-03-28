@@ -190,7 +190,7 @@ def quizzes():
     search_query = request.args.get('quiz_name', '')
 
     if search_query:
-        quizzes= Quiz.query.filter(Quiz.name.ilike(f'%{search_query}')).all()
+        quizzes= Quiz.query.filter(Quiz.name.ilike(f'%{search_query}%')).all()
 
     if form.validate_on_submit():
         quiz= Quiz(
@@ -336,7 +336,7 @@ def users():
     search_query = request.args.get('user_name', '').strip().lower()
 
     if search_query:
-        users = User.query.filter(func.lower(User.fullname).ilike(f'%{search_query}')).all()
+        users = User.query.filter(func.lower(User.fullname).ilike(f'%{search_query}%')).all()
 
     for user in users:
         attempted_quizzes = QuizAttempt.query.filter_by(user_id=user.id).count()
