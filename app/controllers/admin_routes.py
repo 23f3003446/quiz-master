@@ -108,7 +108,7 @@ def chapters():
     search_query = request.args.get('chapter_name', '')
 
     if search_query:
-        chapters = Chapter.query.filter(Chapter.name.ilike(f'%{search_query}')).all()
+        chapters = Chapter.query.filter(Chapter.name.ilike(f'%{search_query}%')).all()
 
     form.subject_id.choices = [(subject.id, subject.name) for subject in Subject.query.all()]
 
