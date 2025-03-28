@@ -8,6 +8,7 @@ This application was developed as a part of the Modern Application Development I
 ![image](https://github.com/user-attachments/assets/df8a6e31-838a-40e1-84fd-86e87c188824)
 ![image](https://github.com/user-attachments/assets/f969c198-8e1c-481b-aeec-8bff8d99466c)
 ![image](https://github.com/user-attachments/assets/28d51076-28a3-4f86-9fd5-b539eef98862)
-
-
+![image](https://github.com/user-attachments/assets/8aa9dee6-1976-4eed-8918-083734a471b2)
+![image](https://github.com/user-attachments/assets/f37ee25c-8f44-48f3-bd92-65d166a33fc7)
 ![image](https://github.com/user-attachments/assets/78dc6a77-ddd5-41f5-855f-9bcc720bac8f)
+![image](https://github.com/user-attachments/assets/c0728f7b-fca2-4d8b-a0dd-4083180adb9f)
