@@ -52,6 +52,12 @@ class EditForm(FlaskForm):
     username = StringField('Username (Email)', validators=[DataRequired(), Email()])
     password = PasswordField('New Password', validators=[Optional()])
     fullname = StringField('Full Name', validators=[DataRequired()])
-    qualification = SelectField('Qualification', choices=[('', '--Select Qualification'),('prim_scl', 'Primary School'), ('mid_scl', 'Middle School'), ('high_scl', 'High School'), ('diploma', 'Diploma'), ('ug', 'Undergraduate'), ('pg', 'Post Graduate Degree'), ('masters', 'Masters'), ('phd', 'PhD')])
+    qualification = SelectField('Qualification', choices=[('', '--Select Qualification'),
+                                                          ('High School', 'High School'), 
+                                                          ('Diploma', 'Diploma'), 
+                                                          ('UnderGraduate', 'Undergraduate'), 
+                                                          ('PostGraduate', 'Post Graduate Degree'), 
+                                                          ('Masters', 'Masters'), 
+                                                          ('PhD', 'PhD')])
     date_of_birth = DateField('Date of Birth', format="%Y-%m-%d", validators=[DataRequired()])
     submit = SubmitField('Submit')
