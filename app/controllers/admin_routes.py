@@ -49,7 +49,7 @@ def subjects():
 @login_required
 def edit_subject(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
+        flash("You don't have access to this page!", "danger")
         return redirect(url_for('auth.home'))
     
     subject = Subject.query.get_or_404(id)
@@ -58,7 +58,7 @@ def edit_subject(id):
         subject.name = form.name.data
         subject.description = form.description.data
         db.session.commit()
-        flash("Subject details succesfully updated!")
+        flash("Subject details succesfully updated!", "success")
         return redirect(url_for('admin.subjects'))
     return render_template('admin/subjects.html', form=form, subjects=subjects)
 
@@ -66,7 +66,7 @@ def edit_subject(id):
 @login_required
 def delete_subject(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
+        flash("You don't have access to this page!", "danger")
         return redirect(url_for('auth.home'))
     subject = Subject.query.get_or_404(id)
 
@@ -213,7 +213,7 @@ def quizzes():
 @login_required
 def edit_quiz(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
+        flash("You don't have access to this page!", "danger")
         return redirect(url_for('auth.home'))
     quiz = Quiz.query.get_or_404(id)
     form=QuizForm(obj=quiz)
@@ -224,7 +224,7 @@ def edit_quiz(id):
         quiz.time_duration = form.time_duration.data
         quiz.chapter_id = form.chapter_id.data
         db.session.commit()
-        flash("Quiz details updated successfulyy!")
+        flash("Quiz details updated successfulyy!", "success")
         return redirect(url_for('admin.quizzes'))
     return render_template('admin/quizzes.html', form=form)
 
@@ -232,7 +232,7 @@ def edit_quiz(id):
 @login_required
 def delete_quiz(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
+        flash("You don't have access to this page!", "danger")
         return redirect(url_for('auth.home'))
     quiz = Quiz.query.get_or_404(id)
 
@@ -302,7 +302,7 @@ def edit_question(question_id):
         question.option4 = form.option4.data
         question.correct_option = form.correct_option.data
         db.session.commit()
-        flash("Question edited.")
+        flash("Question edited successfully!", "success")
         return redirect(url_for('admin.questions', quiz_id=question.quiz_id))
     return render_template('admin/edit_question.html', form=form)
 
@@ -310,12 +310,12 @@ def edit_question(question_id):
 @login_required
 def delete_question(id):
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
+        flash("You don't have access to this page!", "danger")
         return redirect(url_for('auth.home'))
     
     question = Question.query.get_or_404(id)
     if not question:
-        flash("Question not found!")
+        flash("Question not found!", "danger")
         return redirect(url_for('auth.home'))
 
     db.session.delete(question)
@@ -326,7 +326,7 @@ def delete_question(id):
 @login_required
 def users():
     if not current_user.is_admin:
-        flash("You don't have access to this page!")
+        flash("You don't have access to this page!" "danger")
         return redirect(url_for('auth.home'))
     
     users = User.query.all()
