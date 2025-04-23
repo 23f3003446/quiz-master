@@ -12,3 +12,18 @@ This application was developed as a part of the Modern Application Development I
 ![image](https://github.com/user-attachments/assets/f37ee25c-8f44-48f3-bd92-65d166a33fc7)
 ![image](https://github.com/user-attachments/assets/78dc6a77-ddd5-41f5-855f-9bcc720bac8f)
 ![image](https://github.com/user-attachments/assets/c0728f7b-fca2-4d8b-a0dd-4083180adb9f)
+
+### Installation 
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/23f3003446/quiz-master.git
+   cd quiz-master
+   ```
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Running the app**
+   ```bash
+   python run.py
+   ```
